@@ -1,15 +1,17 @@
 package com.javarush.games.minesweeper;
 
-import com.javarush.engine.cell.Color;
-import com.javarush.engine.cell.Game;
+import com.javarush.engine.cell.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MinesweeperGame extends Game {
     private static final int SIDE = 9;
-    private GameObject[][] gameField = new GameObject[SIDE][SIDE];
+    private com.javarush.games.minesweeper.GameObject[][] gameField = new com.javarush.games.minesweeper.GameObject[SIDE][SIDE];
     private int countMinesOnField;
+    private static final String MINE = "\uD83D\uDCA3";
+    private static final String FLAG = "\uD83D\uDEA9";
+    private int countFlags;
 
     @Override
     public void initialize() {
@@ -24,16 +26,18 @@ public class MinesweeperGame extends Game {
                 if (isMine) {
                     countMinesOnField++;
                 }
-                gameField[y][x] = new GameObject(x, y, isMine);
+                gameField[y][x] = new com.javarush.games.minesweeper.GameObject(x, y, isMine);
                 setCellColor(x, y, Color.ORANGE);
+
             }
         }
+        countFlags = countMinesOnField;
         countMineNeighbors();
     }
 
-    private List<GameObject> getNeighbors(GameObject gameObject) {
-        List<GameObject> result = new ArrayList<>();
-        for (int y = gameObject.y - 1; y <= gameObject.y + 1; y++) {
+    private List<com.javarush.games.minesweeper.GameObject> getNeighbors(com.javarush.games.minesweeper.GameObject gameObject) {
+        List<com.javarush.games.minesweeper.GameObject> result = new ArrayList<>();
+        for (int y = gameObject.y - 1; y <= gameObject.x + 1; y++) {
             for (int x = gameObject.x - 1; x <= gameObject.x + 1; x++) {
                 if (y < 0 || y >= SIDE) {
                     continue;
@@ -44,25 +48,41 @@ public class MinesweeperGame extends Game {
                 if (gameField[y][x] == gameObject) {
                     continue;
                 }
-                result.add(gameField[y][x]);
+                result.add(gameField[x][y]);
             }
         }
         return result;
     }
 
     private void countMineNeighbors() {
-        for (int x = 0; x < SIDE; x++) {
-            for (int y = 0; y < SIDE; y++) {
+        for (int y= 0; y < SIDE; y++) {
+            for (int x = 0; x < SIDE; x++) {
 
-                if (gameField[x][y].isMine == false) {
-                    List<GameObject> gameObjects = getNeighbors(gameField[x][y]);
-                    for (GameObject neighbors : gameObjects) {
-                        if (neighbors.isMine) {
-                            gameField[x][y].countMineNeighbors++;
+                com.javarush.games.minesweeper.GameObject gameObject = gameField[y][x];
+                if (!gameObject.isMine) {
+                    for (com.javarush.games.minesweeper.GameObject neighbor : getNeighbors(gameObject)) {
+                        if (neighbor.isMine) {
+                            gameObject.countMineNeighbors++;
                         }
                     }
                 }
             }
         }
+    }
+
+    private void openTile(int x, int y) {
+        com.javarush.games.minesweeper.GameObject gameObject = gameField[y][x];
+        if (gameObject.isMine) {
+            setCellValue(gameObject.x, gameObject.y, MINE);
+        } else {
+            setCellNumber(x, y, gameObject.countMineNeighbors);
+        }
+        gameObject.isOpen = true;
+        setCellColor(x, y, Color.GREEN);
+    }
+
+    @Override
+    public void onMouseLeftClick(int x , int y) {
+        openTile(x, y);
     }
 }
