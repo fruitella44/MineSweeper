@@ -1,4 +1,4 @@
-package com.javarush.games.minesweeper;
+package minesweeper;
 
 import com.javarush.engine.cell.*;
 
@@ -7,7 +7,7 @@ import java.util.List;
 
 public class MinesweeperGame extends Game {
     private static final int SIDE = 9;
-    private com.javarush.games.minesweeper.GameObject[][] gameField = new com.javarush.games.minesweeper.GameObject[SIDE][SIDE];
+    private GameObject[][] gameField = new GameObject[SIDE][SIDE];
     private int countMinesOnField;
     private static final String MINE = "\uD83D\uDCA3";
     private static final String FLAG = "\uD83D\uDEA9";
@@ -26,7 +26,7 @@ public class MinesweeperGame extends Game {
                 if (isMine) {
                     countMinesOnField++;
                 }
-                gameField[y][x] = new com.javarush.games.minesweeper.GameObject(x, y, isMine);
+                gameField[y][x] = new GameObject(x, y, isMine);
                 setCellColor(x, y, Color.ORANGE);
 
             }
@@ -35,8 +35,8 @@ public class MinesweeperGame extends Game {
         countMineNeighbors();
     }
 
-    private List<com.javarush.games.minesweeper.GameObject> getNeighbors(com.javarush.games.minesweeper.GameObject gameObject) {
-        List<com.javarush.games.minesweeper.GameObject> result = new ArrayList<>();
+    private List<GameObject> getNeighbors(GameObject gameObject) {
+        List<GameObject> result = new ArrayList<>();
         for (int y = gameObject.y - 1; y <= gameObject.x + 1; y++) {
             for (int x = gameObject.x - 1; x <= gameObject.x + 1; x++) {
                 if (y < 0 || y >= SIDE) {
@@ -58,9 +58,9 @@ public class MinesweeperGame extends Game {
         for (int y= 0; y < SIDE; y++) {
             for (int x = 0; x < SIDE; x++) {
 
-                com.javarush.games.minesweeper.GameObject gameObject = gameField[y][x];
+                GameObject gameObject = gameField[y][x];
                 if (!gameObject.isMine) {
-                    for (com.javarush.games.minesweeper.GameObject neighbor : getNeighbors(gameObject)) {
+                    for (GameObject neighbor : getNeighbors(gameObject)) {
                         if (neighbor.isMine) {
                             gameObject.countMineNeighbors++;
                         }
@@ -71,7 +71,7 @@ public class MinesweeperGame extends Game {
     }
 
     private void openTile(int x, int y) {
-        com.javarush.games.minesweeper.GameObject gameObject = gameField[y][x];
+        GameObject gameObject = gameField[y][x];
         if (gameObject.isMine) {
             setCellValue(gameObject.x, gameObject.y, MINE);
         } else {
