@@ -20,7 +20,7 @@ public class MinesweeperGame extends Game {
         createGame();
     }
 
-    //поле для сапера
+    //поле c минами
     private void createGame() {
         for (int y = 0; y < SIDE; y++) {
             for (int x = 0; x < SIDE; x++) {
