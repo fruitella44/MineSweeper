@@ -20,7 +20,7 @@ public class MinesweeperGame extends Game {
         createGame();
     }
 
-
+    //поле для сапера
     private void createGame() {
         for (int y = 0; y < SIDE; y++) {
             for (int x = 0; x < SIDE; x++) {
@@ -75,9 +75,15 @@ public class MinesweeperGame extends Game {
 
     private void openTile(int x, int y) {
         GameObject gameObject = gameField[y][x];
+        ;
+
+        //Если открыт объект и установлен флаг и игра остановлена, ничего не делаем
+        if (gameObject.isOpen || gameObject.isFlag || isGameStopped) {
+            return;
+        }
         gameObject.isOpen = true;
         setCellColor(x, y, Color.GREEN);
-
+        //Если мина, то устанавливаем цвет яйчеки крсный цвет и добавляем рисунок мины
         if (gameObject.isMine) {
             setCellValueEx(gameObject.x, gameObject.y, Color.RED, MINE);
             gameOver();
@@ -95,12 +101,13 @@ public class MinesweeperGame extends Game {
 
     }
 
-
+    //Открытие яйчеки левой кнопкой мыши
     @Override
     public void onMouseLeftClick(int x , int y) {
         openTile(x, y);
     }
 
+    //маркировка флагом
     private void markTile(int x, int y) {
         GameObject gameObject = gameField[y][x];
 
@@ -124,11 +131,13 @@ public class MinesweeperGame extends Game {
         }
     }
 
+    //флаг на правом клике мыши
     @Override
     public void onMouseRightClick(int x, int y) {
         markTile(x, y);
     }
 
+    //игра окончена, сообщение Gameover
     private void gameOver() {
         isGameStopped = true;
         showMessageDialog(Color.WHITE, "Gameover", Color.BLACK, 30);
