@@ -134,4 +134,4 @@ public class MinesweeperGame extends Game {
         showMessageDialog(Color.WHITE, "Gameover", Color.BLACK, 30);
     }
 
-}}
+}
