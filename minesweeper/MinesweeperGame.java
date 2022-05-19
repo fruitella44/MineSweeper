@@ -14,6 +14,7 @@ public class MinesweeperGame extends Game {
     private int countFlags;
     private boolean isGameStopped;
     private int countClosedTiles = SIDE * SIDE;
+    private int score;
 
     //поле для сапера
     @Override
@@ -76,19 +77,23 @@ public class MinesweeperGame extends Game {
         }
     }
 
-    //открытие ячейки, метод openTile уменьшает кол-во мин на поле при условии, если мы маркаем флагом мину
+    //открытие ячейки
     private void openTile(int x, int y) {
         GameObject gameObject = gameField[y][x];
         ;
         //Если открыт объект, установлен флаг, игра остановлена, далее продолжить игру нельзя
-        if (gameObject.isOpen || isGameStopped || gameObject.isFlag) {
+        //Также подсчитываем очки за каждое открытие ячейки, при условии, что она не оказалось миной
+        if (gameObject.isOpen || isGameStopped || gameObject.isFlag || !gameObject.isMine) {
+            score = score + 5;
+            setScore(score);
             return;
         }
         countClosedTiles--;
         gameObject.isOpen = true;
         setCellColor(x, y, Color.GREEN);
 
-        //Если мина, то устанавливаем цвет яйчеки красный цвет и добавляем рисунок мины
+
+        //Если мина, то устанавливаем цвет яйчеки крсный цвет и добавляем рисунок мины
         if (gameObject.isMine) {
             setCellValueEx(gameObject.x, gameObject.y, Color.RED, MINE);
             gameOver();
@@ -146,7 +151,7 @@ public class MinesweeperGame extends Game {
         markTile(x, y);
     }
 
-    //игра окончена, сообщение Gameover
+    //игра проиграна при условии, если ты попал на мину + сообщение Gameover
     private void gameOver() {
         isGameStopped = true;
         showMessageDialog(Color.WHITE, "Gameover", Color.BLACK, 30);
