@@ -32,13 +32,12 @@ public class MinesweeperGame extends Game {
                     countMinesOnField++;
                 }
                 gameField[y][x] = new GameObject(x, y, isMine);
-                setCellColor(x, y, Color.ORANGE);
-
+                setCellValueEx(x, y, Color.ORANGE, "");
             }
         }
+
         countMineNeighbors();
         countFlags = countMinesOnField;
-        isGameStopped = false;
     }
 
     private List<GameObject> getNeighbors(GameObject gameObject) {
@@ -82,10 +81,7 @@ public class MinesweeperGame extends Game {
         GameObject gameObject = gameField[y][x];
         ;
         //Если открыт объект, установлен флаг, игра остановлена, далее продолжить игру нельзя
-        //Также подсчитываем очки за каждое открытие ячейки, при условии, что она не оказалось миной
-        if (gameObject.isOpen || isGameStopped || gameObject.isFlag || !gameObject.isMine) {
-            score = score + 5;
-            setScore(score);
+        if (gameObject.isOpen || isGameStopped || gameObject.isFlag) {
             return;
         }
         countClosedTiles--;
@@ -98,7 +94,11 @@ public class MinesweeperGame extends Game {
             setCellValueEx(gameObject.x, gameObject.y, Color.RED, MINE);
             gameOver();
             return;
-        } else if (gameObject.countMineNeighbors == 0) {
+        }
+        score = score + 5;
+        setScore(score);
+
+        if (gameObject.countMineNeighbors == 0) {
             setCellValue(gameObject.x, gameObject.y, "");
             List<GameObject> neighbors = getNeighbors(gameObject);
             for (GameObject blank : neighbors) {
@@ -119,7 +119,12 @@ public class MinesweeperGame extends Game {
     //Открытие яйчеки левой кнопкой мыши
     @Override
     public void onMouseLeftClick(int x , int y) {
-        openTile(x, y);
+        if (isGameStopped) {
+            restart();
+            return;
+        } else {
+            openTile(x, y);
+        }
     }
 
     //маркировка флагом, рисунок флага, цвет флага желтый
@@ -154,13 +159,23 @@ public class MinesweeperGame extends Game {
     //игра проиграна при условии, если ты попал на мину + сообщение Gameover
     private void gameOver() {
         isGameStopped = true;
-        showMessageDialog(Color.WHITE, "Gameover", Color.BLACK, 30);
+        showMessageDialog(Color.WHITE, "Gameover", Color.BLACK, 35);
     }
 
     //игра выйграна при условии, если на поле не остается мин + сообщение You win
     private void win() {
         isGameStopped = true;
-        showMessageDialog(Color.WHITE, "You win", Color.BLACK, 30);
+        showMessageDialog(Color.WHITE, "You win", Color.BLACK, 35);
+    }
+
+    //сброс очков, открытых ячеек, разминированных мин и тд. (при условии если ты нарвался на мину)
+    private void restart() {
+        isGameStopped = false;
+        score = 0;
+        setScore(score);
+        countClosedTiles = SIDE * SIDE;
+        countMinesOnField = 0;
+        createGame();
     }
 
 }
