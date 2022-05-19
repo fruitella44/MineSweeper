@@ -13,29 +13,31 @@ public class MinesweeperGame extends Game {
     private static final String FLAG = "\uD83D\uDEA9";
     private int countFlags;
     private boolean isGameStopped;
+    private int countClosedTiles = SIDE * SIDE;
 
+    //поле для сапера
     @Override
     public void initialize() {
         setScreenSize(SIDE, SIDE);
         createGame();
     }
 
-    //поле для сапера
+    //подсчет мин на игровом поле
     private void createGame() {
         for (int y = 0; y < SIDE; y++) {
             for (int x = 0; x < SIDE; x++) {
                 boolean isMine = getRandomNumber(10) < 1;
                 if (isMine) {
                     countMinesOnField++;
-                    isGameStopped = false;
                 }
                 gameField[y][x] = new GameObject(x, y, isMine);
                 setCellColor(x, y, Color.ORANGE);
 
             }
         }
-        countFlags = countMinesOnField;
         countMineNeighbors();
+        countFlags = countMinesOnField;
+        isGameStopped = false;
     }
 
     private List<GameObject> getNeighbors(GameObject gameObject) {
@@ -57,6 +59,7 @@ public class MinesweeperGame extends Game {
         return result;
     }
 
+    //подсчет соседних мин
     private void countMineNeighbors() {
         for (int y = 0; y < SIDE; y++) {
             for (int x = 0; x < SIDE; x++) {
@@ -73,20 +76,23 @@ public class MinesweeperGame extends Game {
         }
     }
 
+    //открытие ячейки, метод openTile уменьшает кол-во мин на поле при условии, если мы маркаем флагом мину
     private void openTile(int x, int y) {
         GameObject gameObject = gameField[y][x];
         ;
-
-        //Если открыт объект и установлен флаг и игра остановлена, ничего не делаем
-        if (gameObject.isOpen || gameObject.isFlag || isGameStopped) {
+        //Если открыт объект, установлен флаг, игра остановлена, далее продолжить игру нельзя
+        if (gameObject.isOpen || isGameStopped || gameObject.isFlag) {
             return;
         }
+        countClosedTiles--;
         gameObject.isOpen = true;
         setCellColor(x, y, Color.GREEN);
-        //Если мина, то устанавливаем цвет яйчеки крсный цвет и добавляем рисунок мины
+
+        //Если мина, то устанавливаем цвет яйчеки красный цвет и добавляем рисунок мины
         if (gameObject.isMine) {
             setCellValueEx(gameObject.x, gameObject.y, Color.RED, MINE);
             gameOver();
+            return;
         } else if (gameObject.countMineNeighbors == 0) {
             setCellValue(gameObject.x, gameObject.y, "");
             List<GameObject> neighbors = getNeighbors(gameObject);
@@ -95,8 +101,12 @@ public class MinesweeperGame extends Game {
                     openTile(blank.x, blank.y);
                 }
             }
-        } else {
+        }  else {
             setCellNumber(x, y, gameObject.countMineNeighbors);
+        }
+
+        if (countClosedTiles == countMinesOnField) {
+            win();
         }
 
     }
@@ -107,14 +117,13 @@ public class MinesweeperGame extends Game {
         openTile(x, y);
     }
 
-    //маркировка флагом
+    //маркировка флагом, рисунок флага, цвет флага желтый
     private void markTile(int x, int y) {
         GameObject gameObject = gameField[y][x];
 
-        if (isGameStopped) {
+        if (gameObject.isOpen) {
             return;
-        }
-        else if (gameObject.isOpen) {
+        } else if (isGameStopped) {
             return;
         } else if (countFlags == 0 && !gameObject.isFlag) {
             return;
@@ -131,7 +140,7 @@ public class MinesweeperGame extends Game {
         }
     }
 
-    //флаг на правом клике мыши
+    //установка флага на правом клике мыши
     @Override
     public void onMouseRightClick(int x, int y) {
         markTile(x, y);
@@ -141,6 +150,12 @@ public class MinesweeperGame extends Game {
     private void gameOver() {
         isGameStopped = true;
         showMessageDialog(Color.WHITE, "Gameover", Color.BLACK, 30);
+    }
+
+    //игра выйграна при условии, если на поле не остается мин + сообщение You win
+    private void win() {
+        isGameStopped = true;
+        showMessageDialog(Color.WHITE, "You win", Color.BLACK, 30);
     }
 
 }
