@@ -2,8 +2,11 @@
 # Игра MineSweeper реализована на движке javarush.engine.cell
 
 1 - Класс MineSweeperGame наследуется от класса Game, который встроен в движок engine.cell.
+
 2 - В классе MineSweeperGame заложена логика самой игры.
+
 3 - В классе GameObject инициализированы объекты для данной игры.
+
 4 - Класс MineSweeperGame наследуется от класса GameObject.
 
 
